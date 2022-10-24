@@ -1,3 +1,7 @@
+# Let's explore how to create our own modules and packages.
+# Modules are just .py scripts that you call in another .py script.
+# Packages are a collection of modules.
+
 from mymodule import my_func
 
 my_func()
