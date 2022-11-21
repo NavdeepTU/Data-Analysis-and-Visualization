@@ -89,12 +89,12 @@ class SpaceshipSamsung
         // if cell is 2 (enemy)
         else if (board[cur_row][cur_col] == 2) 
         {
-            if (bombUsed && isRowSafe < 0)   // if bomb is already used and its effect is no more there
+            if (bombUsed && isRowSafe <= 0)   // if bomb is already used and its effect is no more there
             {
                 ans = Math.max(ans, coins);
                 return;
             } 
-            else if (bombUsed && isRowSafe >= 0)  // if bomb is already used and its effect still there
+            else if (bombUsed && isRowSafe > 0)  // if bomb is already used and its effect still there
             {
                 isRowSafe--;
                 getMaxCoins(board, isRowSafe, cur_row - 1, cur_col, bombUsed, coins);
@@ -104,7 +104,7 @@ class SpaceshipSamsung
             else   // else use the bomb
             {
                 bombUsed = true;
-                isRowSafe = 4;
+                isRowSafe = 4;  // not 5 bcoz current row bombed(remaining 4)
                 getMaxCoins(board, isRowSafe, cur_row - 1, cur_col, bombUsed, coins);
                 getMaxCoins(board, isRowSafe, cur_row - 1, cur_col + 1, bombUsed, coins);
                 getMaxCoins(board, isRowSafe, cur_row - 1, cur_col - 1, bombUsed, coins);
