@@ -1,83 +1,102 @@
 /*
-https://www.careercup.com/question?id=14989765
-http://ideone.com/oXdBaF
-Given a 2 D matrix where 1 represent the places where the frog can jump and 0 represent the empty spaces,
-the frog can move freely in horizontal direction (on 1’s only) without incurring any cost (jump). 
-A vertical jump from a given point of the matrix to other point on the matrix can be taken (on 1’s only) 
-with cost as the number of jumps taken.
-Given a source and destination, the frog has to reach the destination minimizing the cost (jump).
-*/
+There is a man who wants to climb a rock from a starting point to the destination point. Given a map of the rock mountain which N = height, M = width. 
+In the map, character '-' is the possible foot place spot (where can climb) represented by 1. Rock is represented by 0 and destination by 3.
+He can freely move down/up at vertical spots which '-' exists sequentially. It's impossible to move horizontally in case there is more than one space between '-' in the same height level.
+Depending on how high/low he moves towards the upper or lower direction at one time, the level of difficulty of rock climbing gets determined.
+The maximum height of moving from the starting point to destination point is the level of difficulty of rock climbing .
+The total distance of movement is not important. There are more than one path from the starting point to destination point. => Output: The minimum level of difficulty of all rock climbing paths level.
+Hint: Start with difficulty level 0 and then keep increasing it one by one.
 
-#include <iostream>
-using namespace std;
-#define QS 1000005
+ */
 
-struct Point{
-	int x, y;
-};
+import java.util.*;
 
-int n, sX, sY, tX, tY; 
-int mat[105][105], dis[105][105], vis[105][105];
 
-Point queue[QS];
-int front = 0, rear = 0;
-
-int dirX[] = {1,0,-1,0};
-int dirY[] = {0,1,0,-1};
-
-bool isValid(int i, int j){
-	return (i>=0 && i<n && j>=0 && j<n);
-}
-
-void calculateFrogJump(){
-	queue[rear].x = sX;
-	queue[rear].y = sY;
-	rear = (rear + 1) % QS;
-
-	vis[sX][sY] = 1;
-	dis[sX][sY] = 0;
-
-	while(front != rear){
-		int p = queue[front].x;
-		int q = queue[front].y;
-		front = (front + 1) % QS;
-
-		for(int i=0; i<4; i++){
-			int newX = p + dirX[i];
-			int newY = q + dirY[i];
-
-			if(isValid(newX, newY) && mat[newX][newY] == 1 && vis[newX][newY] == 0){
-				/* Horizontal Cost */
-				if(i == 0 || i == 2){
-					dis[newX][newY] = dis[p][q];
- 				}
-				else if(i == 1 || i == 3){
-					dis[newX][newY] = 1 + dis[p][q];
-				}
-
-				vis[newX][newY] = 1;
-
-				queue[rear].x = newX;
-				queue[rear].y = newY;
-				rear = (rear + 1) % QS;	
-			}
-		}
+class RockClimbing {
+	static int n, m;
+	static int[][] map; 
+	static boolean[][] visited; 
+	static int minDifficulty = Integer.MAX_VALUE;
+	
+	// two moves - horizontal and vertical
+	public static void climbRock(int i, int j, int maxClimbTillNow) {
+		
+	    if(i >= n || i < 0)
+	        return;
+	    else if(j >= m || j < 0)
+	        return;
+	    else if(map[i][j] == 3) {       // reached destination
+	        if(maxClimbTillNow < minDifficulty)
+	            minDifficulty = maxClimbTillNow;
+	    } else if(map[i][j] == 0)
+	        return;
+	    else if(visited[i][j])
+	        return;
+	    else {
+	        visited[i][j] = true;
+	        int up = i-1;
+	        int down = i+1;
+	        int t1 = 0;
+	        // vertical move up
+	        while(up != -1 && map[up][j] == 0)
+	            up--;
+	        // cout << "Climbing Up " << i << " to " << down << " and maxClimbTillNow " << maxClimbTillNow << endl;
+	        if(up != -1 && !visited[up][j] && map[up][j] != 0) {
+	            t1 = i - up;
+	            if(maxClimbTillNow > t1)
+	                t1 = maxClimbTillNow;
+	            // cout << "Climbing Down (" << i << ", " << j << ") to " << up << " and maxClimbTillNow "<< t1 << endl;
+	            climbRock(up, j, t1);
+	        }
+	        // vertical move down
+	        while(down != n && map[down][j] == 0)
+	            down++;
+	        // cout << "Climbing Up " << i << " to " << down << " and maxClimbTillNow " << maxClimbTillNow << endl;
+	        if(down != n && !visited[down][j] && map[down][j] != 0) {
+	            t1 = down - i;
+	            if(maxClimbTillNow > t1)
+	                t1 = maxClimbTillNow;
+	            // cout << "Climbing Up (" << i << ", " << j << ") to (" << down << ", " << j << ") = " << map[down][j] <<" and maxClimbTillNow " << t1 << endl;
+	            climbRock(down, j, t1);
+	        }
+	        //horizontal move
+	        if((j>=0 && j<m-1) && (map[i][j+1] == 1 || map[i][j+1] == 3) && ( !visited[i][j+1]) ) {
+	            climbRock(i, j+1, maxClimbTillNow);
+	        }
+	        if((j>0 && j<m) && (map[i][j-1] == 1 || map[i][j-1] == 3) && ( !visited[i][j-1]) ) {
+	            climbRock(i, j-1, maxClimbTillNow);
+	        }
+	        visited[i][j] = false;
+	    }
 	}
-	cout << dis[tX][tY];
-}
-
-int main(){
-	cin >> n;
-	for(int i=0; i<n; i++){
-		for(int j=0; j<n; j++){
-			cin >> mat[i][j];
-			vis[i][j] = 0;
-			dis[i][j] = 0;
-		}
+	
+	public static void main(String[] args) {
+	    Scanner sc = new Scanner(System.in);
+	    n = sc.nextInt();
+	    m = sc.nextInt();
+	    
+	    map = new int[n][m];
+	    visited = new boolean[n][m];
+	
+	    for(int i=0;i<n;i++) {
+	        for(int j=0;j<m;j++)
+	            map[i][j] = sc.nextInt();
+	    }
+	    climbRock(n-1, 0, 0);
+	    System.out.println(minDifficulty);
 	}
-
-	cin >> sX >> sY >> tX >> tY;
-
-	calculateFrogJump();
-	return 0;
 }
+
+
+/*
+Input -
+4
+3
+0 0 3
+1 0 0
+1 1 1
+1 1 0
+
+Output -
+2
+ */
